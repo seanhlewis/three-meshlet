@@ -1,102 +1,96 @@
 # three-meshlet
 
-`three-meshlet` is a ready-to-go Three.js meshlet library that embeds an offline Nanite-style WebGPU renderer demo in your app.
+`three-meshlet` is a reusable Three.js meshlet library you can clone and run immediately. It focuses on practical mesh optimization workflows: load GLTF or GLB content, generate multi-LOD meshlet payloads, and feed that data into your own renderer pipeline.
 
-This repository includes the reusable JS API plus local demo assets, so you can clone, install, and run immediately.
+The repository also includes a separate WebGPU demo app that showcases a Nanite-style renderer for Three.js, so the library and the demo stay cleanly split.
 
-## SEO Keywords
-
-`three-meshlet`, `three meshlet`, `three.js meshlet library`, `threejs meshlet renderer`, `nanite-style renderer for threejs`, `webgpu meshlet demo`, `gltf mesh rendering`, `three.js LOD optimization`, `meshlet streaming`, `offline three.js renderer`
-
-## Features
-
-- Drop-in iframe embed for a meshlet renderer demo
-- Ships with local/offline assets in `assets/demo-site/`
-- ESM-first package (`type: module`)
-- Simple API for mounting and cleanup
-
-## Clone This Repository
+## Clone the repository
 
 ```bash
 git clone https://github.com/seanhlewis/three-meshlet.git
 cd three-meshlet
 ```
 
-## Install And Use In Your Project
-
-Install directly from GitHub:
+## Install
 
 ```bash
+npm install three
 npm install github:seanhlewis/three-meshlet
 ```
 
-Or install from a local clone:
+If you prefer local development from your clone:
 
 ```bash
-npm install /path/to/three-meshlet
+npm install /absolute/path/to/three-meshlet
 ```
 
-## Quick Usage
+## Use the library
 
-```html
-<div id="meshlet-view" style="width:100%;height:70vh"></div>
-<script type="module">
-  import { mountThreeMeshlets } from 'three-meshlet';
+```js
+import {
+  buildThreeMeshletAssetFromUrls,
+  getThreeMeshletDracoDecoderPath
+} from 'three-meshlet';
 
-  const container = document.getElementById('meshlet-view');
-  const viewer = mountThreeMeshlets(container, {
-    height: '70vh',
-    title: 'Three Meshlet Viewer'
-  });
+const { sources, meshlets } = await buildThreeMeshletAssetFromUrls(
+  [
+    { name: 'DamagedHelmet', url: '/models/DamagedHelmet.gltf' },
+    { name: 'CoffeeMug', url: '/models/coffeeMug.glb' }
+  ],
+  {
+    loaderOptions: {
+      dracoDecoderPath: getThreeMeshletDracoDecoderPath()
+    },
+    onProgress: (message, progress) => {
+      console.log(message, Math.round(progress * 100) + '%');
+    }
+  }
+);
 
-  // Later:
-  // viewer.destroy();
-</script>
+console.log(sources.length, meshlets.totalChunks);
 ```
 
-## API
+## Build from in-memory buffers
 
-### `mountThreeMeshlets(container, options?)`
+```js
+import { buildThreeMeshletAssetFromArrayBuffers } from 'three-meshlet';
 
-Mounts the viewer iframe into a DOM element and returns:
+const entry = {
+  name: 'UploadedModel',
+  buffer: await file.arrayBuffer()
+};
 
-- `frame`: iframe element
-- `destroy()`: removes the iframe cleanly
+const { meshlets } = await buildThreeMeshletAssetFromArrayBuffers([entry]);
+console.log(meshlets.meshletTopologyStats);
+```
 
-### `createThreeMeshletsFrame(options?)`
+## Main exports
 
-Creates (but does not mount) an iframe element for manual placement.
+- `createThreeMeshletGLTFLoader(options?)`
+- `loadSourceModelFromUrl(options)`
+- `loadSourceModelFromArrayBuffer(options)`
+- `loadSourceModelsFromUrls(entries, options?)`
+- `assignSourceMaterialIds(sources)`
+- `buildThreeMeshletAsset(sources, options?)`
+- `buildThreeMeshletAssetFromUrls(entries, options?)`
+- `buildThreeMeshletAssetFromArrayBuffers(entries, options?)`
+- `mergeMeshletAssets(base, next, vertexBase)`
+- `buildVertexGeometry(sources)`
+- `getThreeMeshletDracoDecoderPath()`
+- `getThreeMeshletDemoUrl(path?)`
 
-### `getThreeMeshletsEntryUrl(entryUrl?)`
+## Run the separate demo app
 
-Resolves an absolute URL to the default local demo entry or a provided override.
+From the repository root:
 
-## Options
+```bash
+npm run demo
+```
 
-Supported options for `mountThreeMeshlets` and `createThreeMeshletsFrame`:
+Open:
 
-- `entryUrl` (string)
-- `title` (string, default: `Three Meshlets`)
-- `className` (string)
-- `width` (string or number, default: `100%`)
-- `height` (string or number, default: `100%`)
-- `sandbox` (string, iframe sandbox permissions)
+- http://127.0.0.1:8787/
 
-## Project Structure
+The demo in `/demo` is independent from the package entry in `/src`, which keeps this repo useful both as a three.js meshlet library and as a reference implementation for a WebGPU meshlet renderer.
 
-- `src/index.js`: package API entry
-- `assets/demo-site/`: offline viewer assets and models
-- `package.json`: package metadata and exports
-
-## Requirements
-
-- Modern browser with WebGPU support for best results
-- Serve your host app over HTTP(S), not `file://`
-
-## Troubleshooting
-
-- Blank viewer: verify your browser supports WebGPU and the iframe is visible.
-- Import issues: ensure your environment supports ESM and resolves package exports.
-- Local install issues: delete `node_modules` and reinstall after pulling latest changes.
-
-Credit: Nanite-style renderer for Three.js by @sea3dformat.
+Credit: Nanite-style renderer for threejs by @sea3dformat.

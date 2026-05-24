@@ -1,7 +1,7 @@
 {
   "name": "three-meshlet",
-  "version": "1.1.0",
-  "description": "Three.js meshlet library with a Nanite-style offline WebGPU renderer demo.",
+  "version": "1.2.0",
+  "description": "Reusable Three.js meshlet library for generating meshlet data and running a separate Nanite-style WebGPU demo.",
   "type": "module",
   "main": "./src/index.js",
   "module": "./src/index.js",
@@ -12,10 +12,17 @@
   },
   "files": [
     "src",
-    "assets",
+    "assets/draco",
     "README.md"
   ],
   "sideEffects": false,
+  "scripts": {
+    "demo": "node ./scripts/run-demo.mjs",
+    "pack:check": "npm pack --dry-run"
+  },
+  "peerDependencies": {
+    "three": "^0.181.0"
+  },
   "keywords": [
     "three-meshlet",
     "three.js",
@@ -24,9 +31,9 @@
     "nanite-style",
     "webgpu",
     "gltf",
-    "3d-renderer",
-    "level-of-detail",
-    "mesh-optimization"
+    "lod",
+    "mesh-optimization",
+    "renderer"
   ],
   "repository": {
     "type": "git",
@@ -36,5 +43,8 @@
     "url": "https://github.com/seanhlewis/three-meshlet/issues"
   },
   "homepage": "https://github.com/seanhlewis/three-meshlet#readme",
-  "license": "SEE LICENSE IN REPO"
+  "license": "SEE LICENSE IN REPO",
+  "devDependencies": {
+    "three": "^0.181.0"
+  }
 }
