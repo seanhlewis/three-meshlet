@@ -13,6 +13,10 @@ This repository contains two parts: the reusable library in `src/` and a separat
 - Meshlet payload generation with multiple LOD levels.
 - Utilities to merge meshlet assets and build vertex/material textures.
 
+## Demo
+
+Try in-browser demo at: https://seanhlewis.github.io/three-meshlet-demo/
+
 ## Clone the repository
 
 ```bash
