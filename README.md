@@ -1,10 +1,17 @@
 # three-meshlet
 
-`three-meshlet` is a practical Three.js meshlet library for teams building real-time 3D apps on the web. If you are working with heavy GLTF or GLB assets and need cleaner performance, this package helps you convert source geometry into meshlet data with multiple LOD levels that you can plug into your own renderer pipeline.
+`three-meshlet` is a Three.js meshlet library for GLTF and GLB assets. It loads source models, builds meshlets, and generates multi-LOD data you can use in a custom renderer or content pipeline.
 
-Instead of treating mesh optimization like a separate offline chore, you can keep everything in one JavaScript workflow: load models, process geometry, and generate meshlet payloads that are ready for modern threejs rendering strategies. It is especially useful when you are experimenting with meshlet streaming patterns, distance-based detail reduction, or Nanite-style ideas in a Three.js project.
+The package is focused on mesh optimization for real-time rendering: triangle reduction by LOD, meshlet clustering, and compact payloads for large scenes. If you are working on WebGPU rendering, threejs performance tuning, or Nanite-style experiments, this gives you reusable preprocessing logic instead of one-off scripts.
 
-This repo also ships a separate WebGPU demo app that mirrors a Nanite-style renderer for threejs. The library code stays in `src/`, while the demo lives in `demo/`, so you can use the package in production projects and still keep a runnable visual reference nearby.
+This repository contains two parts: the reusable library in `src/` and a separate WebGPU demo app in `demo/`. Use the library in production code, and use the demo to inspect rendering behavior with the same model workflow.
+
+## What you get
+
+- A reusable three meshlet API for browser-based model processing.
+- GLTFLoader setup with Draco and meshopt support.
+- Meshlet payload generation with multiple LOD levels.
+- Utilities to merge meshlet assets and build vertex/material textures.
 
 ## Clone the repository
 
@@ -20,11 +27,17 @@ npm install three
 npm install github:seanhlewis/three-meshlet
 ```
 
-If you want to develop against your local clone:
+For local development against your clone:
 
 ```bash
 npm install /absolute/path/to/three-meshlet
 ```
+
+## Typical workflow
+
+1. Load one or more models (`.gltf` or `.glb`).
+2. Build meshlet + LOD payloads.
+3. Send that data into your renderer or export step.
 
 ## Use the library
 
@@ -66,12 +79,15 @@ const { meshlets } = await buildThreeMeshletAssetFromArrayBuffers([entry]);
 console.log(meshlets.meshletTopologyStats);
 ```
 
-## Why people use it
+## Meshlet output notes
 
-- Build a three meshlet pipeline directly inside your app code.
-- Prepare GLTF geometry for level-of-detail transitions without bolting on a separate toolchain.
-- Explore WebGPU mesh rendering ideas with a concrete, working three.js reference.
-- Reuse meshlet generation logic across visualization tools, editors, and runtime viewers.
+`meshlets` includes data commonly needed for a meshlet renderer:
+
+- `lods`: per-LOD ranges and error values.
+- `meshletData`: packed meshlet metadata.
+- `meshletStreamData` and `meshletDecodeData`: compressed meshlet decode payloads.
+- `chunkBoundsData`: bounds used for culling.
+- `totalChunks` and `maxMeshletsPerLod`: sizing information for runtime buffers.
 
 ## Main exports
 
@@ -96,11 +112,11 @@ From the repository root:
 npm run demo
 ```
 
-Then open:
+Open:
 
 - http://127.0.0.1:8787/
 
-If port `8787` is busy, run it on another port:
+If port `8787` is in use:
 
 ```powershell
 $env:PORT='8790'; npm run demo
